@@ -1,0 +1,228 @@
+/* Custom Styles for Cafetería Deliciosa */
+
+:root {
+    --primary-color: #8B4513;
+    --secondary-color: #D2691E;
+    --accent-color: #FF6347;
+    --light-bg: #F8F9FA;
+    --dark-bg: #343A40;
+    --text-color: #212529;
+    --white: #FFFFFF;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.hero {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+}
+
+.hero h1 {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.card-img-top {
+    border-radius: 10px 10px 0 0;
+    height: 200px;
+    object-fit: cover;
+}
+
+.btn {
+    border-radius: 25px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    transform: translateY(-2px);
+}
+
+.btn-light {
+    background-color: var(--white);
+    color: var(--primary-color);
+    border-color: var(--white);
+}
+
+.btn-light:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+    color: var(--secondary-color);
+}
+
+.section-padding {
+    padding: 5rem 0;
+}
+
+#menu .nav-tabs .nav-link {
+    border: none;
+    border-radius: 25px 25px 0 0;
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+#menu .nav-tabs .nav-link.active {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.carousel-item img {
+    height: 400px;
+    object-fit: cover;
+}
+
+.carousel-caption {
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    padding: 1rem;
+}
+
+.form-control {
+    border-radius: 25px;
+    border: 2px solid #e9ecef;
+    padding: 0.75rem 1rem;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(139, 69, 19, 0.25);
+}
+
+footer {
+    background-color: var(--dark-bg);
+}
+
+.social-links a {
+    font-size: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+.social-links a:hover {
+    transform: scale(1.2);
+}
+
+/* Animations */
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2rem;
+    }
+    
+    .hero p {
+        font-size: 1rem;
+    }
+    
+    .card-img-top {
+        height: 150px;
+    }
+    
+    .carousel-item img {
+        height: 250px;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero {
+        text-align: center;
+        padding: 3rem 0;
+    }
+    
+    .hero .row {
+        flex-direction: column;
+    }
+    
+    .hero .col-lg-6 {
+        margin-bottom: 2rem;
+    }
+}
+
+/* Loading spinner */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--light-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-color);
+}
+
+/* Print styles */
+@media print {
+    .navbar, .carousel, .btn, footer {
+        display: none !important;
+    }
+    
+    body {
+        font-size: 12pt;
+    }
+}
