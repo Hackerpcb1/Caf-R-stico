@@ -3,44 +3,89 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Form validation and submission
     const contactForm = document.getElementById('contactForm');
-    const newsletterForm = document.getElementById('newsletterForm');
 
     // Contact form handler
-    contactForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const name = document.getElementById('name').value;
-        const email = document.getElementById('email').value;
-        const message = document.getElementById('message').value;
-        
-        if (validateEmail(email)) {
-            // Simulate form submission
-            alert('¡Gracias por tu mensaje, ' + name + '! Te responderemos pronto.');
-            contactForm.reset();
-        } else {
-            alert('Por favor, ingresa un email válido.');
-        }
-    });
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
 
-    // Newsletter form handler
-    newsletterForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const email = document.getElementById('newsletterEmail').value;
-        
-        if (validateEmail(email)) {
-            alert('¡Gracias por suscribirte! Recibirás nuestras novedades pronto.');
-            newsletterForm.reset();
-        } else {
-            alert('Por favor, ingresa un email válido.');
-        }
-    });
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const message = document.getElementById('message').value;
+
+            if (validateEmail(email)) {
+                alert('¡Gracias por tu mensaje, ' + name + '! Te responderemos pronto.');
+                contactForm.reset();
+            } else {
+                alert('Por favor, ingresa un email válido.');
+            }
+        });
+    }
 
     // Email validation function
     function validateEmail(email) {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return re.test(email);
     }
+
+    // Real-time status checker
+    function checkOpenStatus() {
+        const now = new Date();
+        const day = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const currentTime = hours + minutes / 60; // Convert to decimal hours
+
+        // Business hours: Monday (1) to Saturday (6), 6:00 AM - 1:00 PM
+        const openTime = 6; // 6:00 AM
+        const closeTime = 13; // 1:00 PM
+        const isWeekday = day >= 1 && day <= 6; // Monday to Saturday
+        const isWithinHours = currentTime >= openTime && currentTime < closeTime;
+
+        // Update both status indicators
+        const statusBadges = [
+            document.querySelector('#openStatus'),
+            document.querySelector('#heroStatus .status-badge')
+        ];
+
+        statusBadges.forEach(statusBadge => {
+            if (!statusBadge) return;
+
+            const statusText = statusBadge.querySelector('.status-text');
+            if (!statusText) return;
+
+            if (isWeekday && isWithinHours) {
+                // OPEN
+                statusBadge.className = 'status-badge open';
+                statusText.textContent = 'Abierto Ahora';
+            } else {
+                // CLOSED
+                statusBadge.className = 'status-badge closed';
+
+                // Calculate next opening time
+                let nextOpenMessage = '';
+                if (day === 0) {
+                    // Sunday - opens Monday
+                    nextOpenMessage = 'Abre lunes 6:00 AM';
+                } else if (day === 6 && currentTime >= closeTime) {
+                    // Saturday after closing - opens Monday
+                    nextOpenMessage = 'Abre lunes 6:00 AM';
+                } else if (isWeekday && currentTime < openTime) {
+                    // Before opening today
+                    nextOpenMessage = 'Abre hoy 6:00 AM';
+                } else if (isWeekday && currentTime >= closeTime) {
+                    // After closing today
+                    nextOpenMessage = 'Abre mañana 6:00 AM';
+                }
+
+                statusText.textContent = `Cerrado • ${nextOpenMessage}`;
+            }
+        });
+    }
+
+    // Check status immediately and every minute
+    checkOpenStatus();
+    setInterval(checkOpenStatus, 60000); // Update every minute
 
     // Smooth scrolling for navigation links
     const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
@@ -113,11 +158,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     images.forEach(img => imageObserver.observe(img));
 
-    // Add loading animation to buttons
-    const buttons = document.querySelectorAll('button[type="submit"]');
-    buttons.forEach(button => {
-        button.addEventListener('click', function() {
-            if (this.form.checkValidity()) {
+    // Add loading animation to contact form submit button only
+    const contactSubmitBtn = document.querySelector('#contactForm button[type="submit"]');
+    if (contactSubmitBtn) {
+        contactSubmitBtn.addEventListener('click', function() {
+            if (this.form && this.form.checkValidity()) {
                 this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando...';
                 this.disabled = true;
 
@@ -128,64 +173,100 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 2000);
             }
         });
-    });
+    }
 
     // Order modal functionality
     const menuItems = document.querySelectorAll('.menu-item');
-    const orderModal = new bootstrap.Modal(document.getElementById('orderModal'));
+    const orderModalEl = document.getElementById('orderModal');
     const itemNameEl = document.getElementById('itemName');
     const ingredientsListEl = document.getElementById('ingredientsList');
     const sizeFieldEl = document.getElementById('sizeField');
     const submitOrderBtn = document.getElementById('submitOrder');
 
-    menuItems.forEach(item => {
-        item.addEventListener('click', function() {
-            const name = this.dataset.name;
-            const ingredients = this.dataset.ingredients;
-            const price = this.dataset.price;
+    console.log('Order modal element:', orderModalEl);
+    console.log('Menu items found:', menuItems.length);
 
-            itemNameEl.textContent = name;
+    if (!orderModalEl) {
+        console.error('Order modal not found!');
+        return;
+    }
 
-            // Clear previous ingredients
-            ingredientsListEl.innerHTML = '';
+    const orderModal = new bootstrap.Modal(orderModalEl);
 
-            // Add ingredients as list items
-            ingredients.split(', ').forEach(ingredient => {
-                const li = document.createElement('li');
-                li.textContent = ingredient.trim();
-                ingredientsListEl.appendChild(li);
-            });
+    // Function to open order modal with product info
+    function openOrderModal(menuItem) {
+        const name = menuItem.dataset.name;
+        const ingredients = menuItem.dataset.ingredients;
+        const price = menuItem.dataset.price;
 
-            // Show size field only for drinks (cafes)
-            if (this.closest('#cafes')) {
-                sizeFieldEl.style.display = 'block';
-            } else {
-                sizeFieldEl.style.display = 'none';
+        itemNameEl.textContent = name;
+
+        // Clear previous ingredients
+        ingredientsListEl.innerHTML = '';
+
+        // Add ingredients as list items
+        ingredients.split(', ').forEach(ingredient => {
+            const li = document.createElement('li');
+            li.textContent = ingredient.trim();
+            ingredientsListEl.appendChild(li);
+        });
+
+        // Show size field only for drinks (cafes)
+        if (menuItem.closest('#cafes')) {
+            sizeFieldEl.style.display = 'block';
+        } else {
+            sizeFieldEl.style.display = 'none';
+        }
+
+        // Reset form
+        document.getElementById('orderForm').reset();
+
+        // Show modal
+        orderModal.show();
+    }
+
+    // Handle click on "Pedir" buttons
+    const orderButtons = document.querySelectorAll('.menu-item .btn-primary');
+    console.log('Found order buttons:', orderButtons.length);
+    orderButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.stopPropagation(); // Prevent card click event
+            console.log('Button clicked!');
+            const menuItem = this.closest('.menu-item');
+            if (menuItem) {
+                console.log('Opening modal for:', menuItem.dataset.name);
+                openOrderModal(menuItem);
             }
+        });
+    });
 
-            // Reset form
-            document.getElementById('orderForm').reset();
-
-            // Show modal
-            orderModal.show();
+    // Keep the original card click functionality (optional)
+    menuItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            // Only trigger if not clicking on the button
+            if (!e.target.closest('.btn-primary')) {
+                openOrderModal(this);
+            }
         });
     });
 
     // Handle order submission
-    submitOrderBtn.addEventListener('click', function() {
-        const form = document.getElementById('orderForm');
-        if (form.checkValidity()) {
-            const quantity = document.getElementById('quantity').value;
-            const size = document.getElementById('size').value;
-            const instructions = document.getElementById('instructions').value;
+    if (submitOrderBtn) {
+        submitOrderBtn.addEventListener('click', function() {
+            const form = document.getElementById('orderForm');
+            if (form && form.checkValidity()) {
+                const quantity = document.getElementById('quantity').value;
+                const size = document.getElementById('size').value;
+                const instructions = document.getElementById('instructions').value;
 
-            // Simulate order processing
-            alert(`¡Pedido realizado!\nProducto: ${itemNameEl.textContent}\nCantidad: ${quantity}\nTamaño: ${size}\nInstrucciones: ${instructions || 'Ninguna'}`);
+                // Simulate order processing
+                alert(`¡Pedido realizado!\nProducto: ${itemNameEl.textContent}\nCantidad: ${quantity}\nTamaño: ${size}\nInstrucciones: ${instructions || 'Ninguna'}`);
 
-            // Close modal
-            orderModal.hide();
-        } else {
-            alert('Por favor, completa todos los campos requeridos.');
-        }
-    });
+                // Close modal
+                orderModal.hide();
+            } else {
+                alert('Por favor, completa todos los campos requeridos.');
+            }
+        });
+    }
 });
